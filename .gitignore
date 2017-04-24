@@ -7,5 +7,6 @@ public/
 .deploy*/
 themes/cactus-dark/
 themes/maupassant/
+themes/next/
 
 *.swp
