@@ -45,7 +45,7 @@ index_with_subtitle: false
 # When running the site in a subdirectory (e.g. domain.tld/blog), remove the leading slash (/archives -> archives)
 menu:
   home: /
-  #categories: /categories
+  categories: /categories
   #about: /about
   archives: /archives
   tags: /tags
@@ -142,8 +142,9 @@ font:
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 social:
   #LinkLabel: Link
-  GibHub: https://github.com/yumaokao
   Twitter: https://twitter.com/yumaokao
+  Facebook: https://www.facebook.com/ymk.kao
+  GitHub: https://github.com/yumaokao
 
 
 # Social Links Icons
@@ -157,6 +158,7 @@ social_icons:
   # KeyMapsToSocialItemKey: NameOfTheIconFromFontAwesome
   GitHub: github
   Twitter: twitter
+  Facebook: facebook
   # Weibo: weibo
 
 

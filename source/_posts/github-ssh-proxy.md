@@ -1,6 +1,8 @@
 ---
 title: GitHub SSH and ProxyCommand
 date: 2017-04-24 16:37:43
+categories:
+- environments
 tags:
 - ssh 
 - proxy
