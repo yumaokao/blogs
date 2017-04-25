@@ -9,6 +9,8 @@ generate:
 	@ [ -f themes/next_config.yml ] && cp themes/next_config.yml ./themes/next/_config.yml
 	@ [ -f themes/highlight.styl ] && cp themes/highlight.styl ./themes/next/source/css/_common/components/highlight/highlight.styl
 	@ [ -f themes/post.styl ] && cp themes/post.styl ./themes/next/source/css/_common/components/post/post.styl
+	@ [ -f themes/post.styl ] && cp themes/post-expand.styl ./themes/next/source/css/_common/components/post/post-expand.styl
+
 	@ hexo g
 
 service: generate
