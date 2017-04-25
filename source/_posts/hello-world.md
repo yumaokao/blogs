@@ -21,10 +21,16 @@ comments: false
 - [ ] t-ui
 - [ ] sdr and hackrf one
 
+### stories
+- [ ] YMK define
+- [ ] anonnon
+- [ ] short cake
+
 ### environment
 - [ ] bluetoothctl
 - [ ] i3 alt-tab
 - [ ] i3 pomodoro
+- [ ] i3 statusbar fonts
 - [ ] rofi
 - [ ] wstund
 - [ ] source route
@@ -45,15 +51,21 @@ comments: false
 - [ ] futher.concurrent
 - [ ] urwid and asyncio
 - [ ] closure
+- [ ] ydreye
 - [ ] gamekpy
 - [ ] idpow
 
 ### javascript
 - [ ] promise
+- [ ] cordova
+- [ ] angularjs
+- [ ] nvd3, d3.js
 
 ### anonsen/vps
 - [ ] firebase v3
 - [ ] let's encrypt
+- [ ] fami
+- [ ] hsr
 
 ### android
 - [ ] termux zsh
