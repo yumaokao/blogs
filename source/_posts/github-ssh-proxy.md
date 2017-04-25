@@ -33,7 +33,7 @@ ProxyCommand ssh yumaokao@10.10.0.1 nc %h %p
 
 ```
 
-這樣就可以直接使用 `hub clone yumaokao/blogs` 了，當然也就可以直接 `push` 回去。
+這樣就可以直接使用 `hub clone yumaokao/blogs` 了，當然也就可以直接 `push` 回去啦。
 
 
 [建議使用]: https://help.github.com/articles/which-remote-url-should-i-use/
