@@ -14,8 +14,10 @@ timezone:
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://yumaokao.github.io
 root: /
-permalink: :year/:month/:day/:title/
+# permalink: :year/:month/:day/:title/
+permalink: :year/:month/:title/:lang/
 permalink_defaults:
+  lang: tw
 
 # Directory
 source_dir: source
