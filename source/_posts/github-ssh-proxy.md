@@ -2,7 +2,7 @@
 title: GitHub SSH and ProxyCommand
 date: 2017-04-24 16:37:43
 categories:
-- environments
+- environment
 tags:
 - ssh 
 - proxy
@@ -14,8 +14,8 @@ tags:
 
 GitHub [建議使用] HTTPS URLs，因為使用 SSH 在授限制的環境中很有可能會被擋住。
 > ** -- Which remote URL should I use?**
-> The https:// clone URLs are available on all repositories, public and private.
-> These URLs work everywhere--even if you are behind a firewall or proxy. 
+>> The https:// clone URLs are available on all repositories, public and private.
+>> These URLs work everywhere--even if you are behind a firewall or proxy. 
 
 <!-- more -->
 通常在這種情況之下，我也都是使用 HTTPS，但還是會遇到幾種情況，預設是使用 SSH 去連 GitHub 的，有的可以改，有的不知道怎麼改，像是：

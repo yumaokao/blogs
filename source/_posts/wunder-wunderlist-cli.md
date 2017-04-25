@@ -1,5 +1,5 @@
 ---
-title: wunder-wunderlist-cli
+title: wunder, A Wunderlist CLI Program
 date: 2017-04-25 16:59:32
 categories:
 - commandline
@@ -19,15 +19,15 @@ tags:
 
 <!-- more -->
 > ** -- Microsoft to shut down Wunderlist in favor of its new app, To-Do **
-> Microsoft makes its forthcoming demise pretty clear.
-> Stating its plans in black-and-white: **“we will retire Wunderlist,”**
+>> Microsoft makes its forthcoming demise pretty clear.
+>> Stating its plans in black-and-white: **“we will retire Wunderlist,”**
 
 
 ## Wunderlist API and Google Keep
 
-其實在使用 Wunderlist 之前，都是使用 Google [Keep]，當然也都有網頁以及 Android 支援，以及可以自動同步，但是 Google [Keep] 當時苦等 API 未果，而 [Wunderlist] 有出 API 可以自己寫程式連，就決定換過去了。
+其實在使用 [Wunderlist] 之前，都是使用 Google [Keep]，當然也都有網頁以及 Android 支援，以及可以自動同步，但是 Google [Keep] 當時苦等 API 未果，而 [Wunderlist] 有出 API 可以自己寫程式連，就決定換過去了。
 
-而為什麼想要有 API 呢？是因為常常都活在 CommandLine 底下，所以其實也都會希望可以直接有 CommandLine 程式可以管理這些代辦事項，想到就丟到 Inbox 等這種 [GTD] 管理，所以如果有 API 的話，就比較有機會有人幫忙寫了 CommandLine 的程式，就算沒有或是不合用，也可以自己寫一個。
+而為什麼想要有 <font color="blue">API</font> 呢？是因為常常都活在 CommandLine 底下，所以其實也都會希望可以直接有 CommandLine 程式可以管理這些代辦事項，想到就丟到 Inbox 等這種 [GTD] 管理，所以如果有 API 的話，就比較有機會有人幫忙寫了 CommandLine 的程式，就算沒有或是不合用，也可以自己寫一個。
 
 
 ## wunder
@@ -46,7 +46,7 @@ tags:
 
 ## Next
 
-最後我決定要搬去 [Trello] 了，啊哈哈哈哈！
+最後我決定要搬去 [Trello] 了，就留下這篇做個紀念，啊哈哈哈哈！
 
 [Wunderlist]: (https://www.wunderlist.com/)
 [GTD]: (https://en.wikipedia.org/wiki/Getting_Things_Done)
