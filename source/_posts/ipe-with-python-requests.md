@@ -19,9 +19,21 @@ tags:
 
 <!-- more -->
 
+### arsp
+先講 arsp 這個部份，因為這個網站不用登入，看來也沒有檢查 Cookie 的時效性，所以容易許多，也沒有太多例外狀況。
+
+#### query url and parameters
+
+
 ### ipe
 
-### arsp
+#### login and cookie
+
+#### query url and parameters
+
+#### result and decode_unicode
+
+#### post error handling
 
 
 [ipe]: https://github.com/yumaokao/ipe
