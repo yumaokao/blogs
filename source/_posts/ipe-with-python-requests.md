@@ -19,6 +19,21 @@ tags:
 
 <!-- more -->
 
+### mermaid
+{% mermaid %}
+  graph TB
+           subgraph one
+           a1-->a2
+           end
+           subgraph two
+           b1-->b2
+           end
+           subgraph three
+           c1-->c2
+           end
+           c1-->a2
+{% endmermaid %}
+
 ### arsp
 先講 arsp 這個部份，因為這個網站不用登入，看來也沒有檢查 Cookie 的時效性，所以容易許多，也沒有太多例外狀況。
 
