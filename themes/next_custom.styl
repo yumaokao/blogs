@@ -1,4 +1,6 @@
 // Custom styles.
+
+// css
 /* .main-inner {
   margin: 0;
 }
@@ -7,11 +9,21 @@
   margin: 0;
 } */
 
+body {
+  line-height: 1.66;
+}
+
+.content-wrap {
+  +mobile() {
+    padding: 0;
+  }
+}
+
 .post-body p a{
   color: royalblue;
   border-bottom: none;
   &:hover {
-    color: darkslateblue;
+    color: steelblue;
     border-bottom: solid;
   }
 }
