@@ -48,13 +48,13 @@ tags:
 
 最後我決定要搬去 [Trello] 了，就留下這篇做個紀念，啊哈哈哈哈！
 
-[Wunderlist]: (https://www.wunderlist.com/)
-[GTD]: (https://en.wikipedia.org/wiki/Getting_Things_Done)
-[Keep]: (https://keep.google.com/)
-[wunder]: (https://github.com/yumaokao/wunder)
-[Node.js]: (https://nodejs.org/en/)
-[Mocha]: (https://mochajs.org/)
-[TDD]: (https://en.wikipedia.org/wiki/Test-driven_development)
-[Wunderlist RESTful API]: (https://developer.wunderlist.com/documentation)
-[Promise]: (http://bluebirdjs.com/docs/getting-started.html)
-[Trello]: (https://trello.com/)
+[Wunderlist]: https://www.wunderlist.com/
+[GTD]: https://en.wikipedia.org/wiki/Getting_Things_Done
+[Keep]: https://keep.google.com/
+[wunder]: https://github.com/yumaokao/wunder
+[Node.js]: https://nodejs.org/en/
+[Mocha]: https://mochajs.org/
+[TDD]: https://en.wikipedia.org/wiki/Test-driven_development
+[Wunderlist RESTful API]: https://developer.wunderlist.com/documentation
+[Promise]: http://bluebirdjs.com/docs/getting-started.html
+[Trello]: https://trello.com/
