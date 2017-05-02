@@ -19,6 +19,7 @@ tags:
 > - 雖然對 [rst] 比較有愛，但真的 [md] 比較紅一點啦 XDDD
 
 而這篇就主要寫一下，用到的佈景主題以及相關的設定。
+<!-- more -->
 
 ## Next
 
@@ -34,8 +35,7 @@ $ cd your-hexo-site
 $ git clone https://github.com/iissnan/hexo-theme-next themes/next
 ```
 
-然後會需要更改裡面的配置文件 `_config.yaml`，這時候問題就來了，畢竟 `_config.yaml` 是放在佈景主題的 **git repo** 裡的，
-變更了想儲存一下總不能 `push` 回去吧。
+然後會需要更改裡面的配置文件 `_config.yaml`，這時候問題就來了，畢竟 `_config.yaml` 是放在佈景主題的 **git repo** 裡的，變更了想儲存一下總不能 `push` 回去吧。
 
 > 所以就決定把配置文件放在外面，每次再複製過去佈景主題的目錄裡面就好了。
 > 反正還不太需要大改佈景主題裡面的東西。
@@ -123,3 +123,4 @@ sequenceDiagram
 [Node.js]: https://nodejs.org/en/
 [rst]: http://docutils.sourceforge.net/rst.html
 [Next]: http://theme-next.iissnan.com/
+[Mermaid]: https://knsv.github.io/mermaid/
