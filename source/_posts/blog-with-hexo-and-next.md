@@ -15,7 +15,7 @@ tags:
 所以決定改用這套來新寫一個 **Blog** ，這樣可以把文章做版本控制，也因為可以使用 **Markdown**，所以只要給個[文字編輯器]，就可以寫了。
 更讚的是 **Android** 的 [Termux] 也因為有 [Node.js] 的套件，所以其實完全是可以帶個手機平板，就可以隨時更新以及發佈內容的。
 
-> - *Termux* 實在太讚，所以要講很多次 XD
+> - **Termux** 實在太讚，所以要講很多次 XD
 > - 雖然對 [rst] 比較有愛，但真的 [md] 比較紅一點啦 XDDD
 
 而這篇就主要寫一下，用到的佈景主題以及相關的設定。
@@ -42,7 +42,7 @@ $ git clone https://github.com/iissnan/hexo-theme-next themes/next
 
 因此也把這些步驟寫成一個 **Makefile**，也把相依關係也寫在裡面。
 
-```sh
+```makefile
 theme:
 	@ [ -f themes/next_config.yml ] && cp themes/next_config.yml ./themes/next/_config.yml
 
@@ -62,12 +62,27 @@ service: generate
 
 > 其實可以把需要覆蓋的 css style 語法貼過去 `custom.styl` 就可以了。
 
+### Next and MathJax
+
+**[MathJax]** 是一個 JavaScript 工具可以在網頁上顯示漂亮的數學式子，**[Next]** 也已經把這個也加進去了，所以只要 [Next] 的 `_config.yaml` 中把這個選項開啟就可以了。
+
+所以就可以使用 [Latex] 的方法來表示了：
+```
+$$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
+```
+
+就會長成像是這樣，不知道會什麼要花這麼久的式子。
+
+$$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
+
 
 ## Mermaid
 
 [Mermaid] 是一個可以用文字檔畫個關係圖流程圖的生成工具。（覺得也有點像是 DOT graphviz ）
 
 也有人寫了 [Hexo] 的外掛，可以在 **Blog** 的檔案中使用 [Mermaid] 語法產生流程圖。
+
+### setup
 
 先安裝一下：
 ```sh
@@ -82,9 +97,11 @@ $ npm install hexo-tag-mermaid --save
 <link href="https://cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css" rel="stylesheet" type="text/css" />
 ```
 
-然後就可以試試看了：
+然後就可以試試看 {% raw %} {% mermaid %} {% endraw %} 了：
 
-```mermaid
+### example: sequenceDiagram
+
+```markdown
 {% mermaid %}
 sequenceDiagram
     participant Alice
@@ -124,3 +141,5 @@ sequenceDiagram
 [rst]: http://docutils.sourceforge.net/rst.html
 [Next]: http://theme-next.iissnan.com/
 [Mermaid]: https://knsv.github.io/mermaid/
+[MathJax]: https://www.mathjax.org/
+[Latex]: https://en.wikibooks.org/wiki/LaTeX/Mathematics
