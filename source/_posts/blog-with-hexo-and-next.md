@@ -71,7 +71,7 @@ service: generate
 $$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
 ```
 
-就會長成像是這樣，不知道會什麼要花這麼久的式子。
+就會長成像是這樣，是一個不知道會什麼要花這麼久的式子。
 
 $$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
 
