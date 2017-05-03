@@ -12,8 +12,7 @@ tags:
 
 嗨，**[Hexo]** 是一套快速、簡單且強大的網誌框架，支援 [Markdown]，以及還有許多的**外掛套件**和**佈景主題**。
 
-所以決定改用這套來新寫一個 **Blog** ，這樣可以把文章做版本控制，也因為可以使用 **Markdown**，所以只要給個[文字編輯器]，就可以寫了。
-更讚的是 **Android** 的 [Termux] 也因為有 [Node.js] 的套件，所以其實完全是可以帶個手機平板，就可以隨時更新以及發佈內容的。
+所以決定改用這套來新寫一個 **Blog**，這樣可以把文章做版本控制，也因為可以使用 **Markdown**，所以只要給個[文字編輯器]，就可以寫了。更讚的是 **Android** 的 [Termux] 也因為有 [Node.js] 的套件，所以其實完全是可以帶個手機平板，就可以隨時更新以及發佈內容的啦。
 
 > - **Termux** 實在太讚，所以要講很多次 XD
 > - 雖然對 [rst] 比較有愛，但真的 [md] 比較紅一點啦 XDDD
@@ -55,12 +54,18 @@ service: generate
 
 ### Next and custom
 
-不過的確很多選項並沒有都放在 `_config.yaml` 裡面，像是某些 **CSS** 相關的設定。
-當然也都可以如法泡製 `_config.yaml` 的方法，但每個 **stylus** 檔案都要改上一點的話，那還真的需要 `fork` 一個佈景主題才行。
+不過的確很多選項並沒有都放在 `_config.yaml` 裡面，像是某些 **CSS** 相關的設定。當然也都可以如法泡製 `_config.yaml` 的方法，但每個 **stylus** 檔案都要加上一點的話，那還真的需要 `fork` 一個佈景主題才行。
 
 後來發覺 [Next] 本來就有考慮到這層需求，所以像是自訂**CSS**的部份，已經有個叫作 `_custom/custom.styl` 空檔案了，
 
 > 其實可以把需要覆蓋的 css style 語法貼過去 `custom.styl` 就可以了。
+
+```css
+// $ cat themes/next_custom.styl
+.posts-expand .post-body {
+  ul li { list-style: square; }
+ }
+```
 
 ### Next and MathJax
 
@@ -71,7 +76,7 @@ service: generate
 $$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
 ```
 
-就會長成像是這樣，是一個不知道會什麼要花這麼久的式子。
+就會長成像是這樣，是一個不知道**`為什麼要花這麼久`**的式子。
 
 $$ K\_{v246}=\frac{1}{T} \int \limits\_0^T \frac{dF(t)}{dt} $$
 
@@ -97,7 +102,44 @@ $ npm install hexo-tag-mermaid --save
 <link href="https://cdn.bootcss.com/mermaid/6.0.0/mermaid.min.css" rel="stylesheet" type="text/css" />
 ```
 
-然後就可以試試看 {% raw %} {% mermaid %} {% endraw %} 了：
+然後就可以試試看 **`{% raw %}{% mermaid %}{% endraw %}`** 了：
+
+### example: gantt diagram
+
+要用 [Mermaid] 產生甘特圖的話，像這樣寫：
+```markdown
+{% mermaid %}
+gantt
+    title Rehearsal [of Rehearsal...]
+    dateFormat  YYYY-MM-DD HH:mm
+
+    section Demonstration
+    Real Demo			:crit, demo, 2017-04-25 10:00, 2h
+    section Rehearsals
+    K's Rehearsal     		:reh-k, 2017-04-21 15:00, 3h
+    R's Rehearsal     		:reh-r, 2017-04-20 16:00, 3h
+    A's Rehearsal     		:reh-a, 2017-04-20 11:00, 3h
+    Y's Rehearsal     		:reh-y, 2017-04-19 15:00, 3h
+    section Preparation
+    Demo Preparation      	:active, pre, 2017-04-18 09:00, 30h
+{% endmermaid %}
+```
+就可以產生 **`Rehearsal of Rehearsal...`** 的圖了。
+{% mermaid %}
+gantt
+    title Rehearsal [of Rehearsal...]
+    dateFormat  YYYY-MM-DD HH:mm
+
+    section Demonstration
+    Real Demo			:crit, demo, 2017-04-25 10:00, 2h
+    section Rehearsals
+    K's Rehearsal     		:reh-k, 2017-04-21 15:00, 3h
+    R's Rehearsal     		:reh-r, 2017-04-20 16:00, 3h
+    A's Rehearsal     		:reh-a, 2017-04-20 11:00, 3h
+    Y's Rehearsal     		:reh-y, 2017-04-19 15:00, 3h
+    section Preparation
+    Demo Preparation      	:active, pre, 2017-04-18 09:00, 1d
+{% endmermaid %}
 
 ### example: sequenceDiagram
 
