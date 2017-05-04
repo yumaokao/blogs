@@ -1,5 +1,5 @@
 ---
-title: ipe, data fetch with python
+title: ipe/arsp, Data Fetch with Python
 date: 2017-04-26 13:25:41
 categories:
 - environment
@@ -13,7 +13,7 @@ tags:
 
 前後有分別對兩個不同的網站抓大量資料，所以分成兩大部份 [arsp]/[ipe]，不過 code 還是放在一起啦XD。不過只看原始碼可能還是會不太了解，某些值是怎麼得來的，以及過程中遇到的有趣的例外處理，就想要放在這篇趁我還記憶猶新寫起來。
 
-個人喜好緣故，所以全都是用 `Python3` ，用 [requests] 發要求，用 [lxml] 解析內容。真心覺得這些真是無敵好用模組，預設必裝！！
+個人喜好緣故，所以全都是用 `Python3`，用 [requests] 發要求，用 [lxml] 解析內容。真心覺得這些真是無敵好用模組，預設必裝！！
 
 <!-- more -->
 ### arsp
