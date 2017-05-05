@@ -67,6 +67,8 @@ def biz(year=105, month=9):
             break
 ```
 
+當然相同的規則也可以套用到其他本雜誌，所以比較完整的版本[在這裡](https://gist.github.com/yumaokao/fa5ee6d043cf0965d22e3ed444fdcf80)。
+
 ## Ivy League 常春藤英語
 
 [常春藤] 英語也是出了好幾本英文雜誌，像是**`解析英語`**這本，個人認為是相當好的英語學習雜誌。
@@ -101,7 +103,7 @@ A03 -.-> A11
 A11 -.-> A12
 {% endmermaid %}
 
-大概是像這樣：
+大概是像這樣：（**我 {% fa heart %} lambda**）
 ```python
     today = date.today() 
  
@@ -129,7 +131,6 @@ A11 -.-> A12
         sys.exit("not found in the page") 
     else: 
         print(mp3s[offset][1]) 
-
 ```
 
 [LiveABC]: http://www.liveabc.com/index.asp
