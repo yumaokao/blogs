@@ -60,7 +60,8 @@ $ apt install -y proot
 echo "Please input password for the first time"
 read -s P
 
-$SSHPASS ssh -o StrictHostKeyChecking=no ymkdo ls
+[ -f $HOME/.ssh/id_rsa ] && SSHPASS="" || SSHPASS="sshpass -p $P"
+$SSHPASS ssh -o StrictHostKeyChecking=no sshserver ls
 ```
 
 ### Here document to config file
@@ -80,11 +81,11 @@ cat > /etc/shells <<EOF
 EOF
 ```
 
-### Multiple stages before/after chroot
+## Multiple stages before/after chroot
 好的，問題來了。
 如果進去到 **[Termux]** 的視窗中，就會發現它的確還是在 **Android** 底下，不信可以先 **`ls /`** 看看，完全就是個 **Android** **根目錄**的樣子。
 
-#### shebang
+### shebang
 這代表一件事，如果沒有特別處理，開頭長得像這樣的 **Script** 是沒有辦法直接執行的。
 ```sh
 #!/bin/sh
@@ -97,7 +98,7 @@ EOF
 #!/data/data/com.termux/files/user/bin/bash
 ```
 
-#### chroot
+### chroot
 {% blockquote %}
 但是每個 **Script** 都需要 **fix** 的話，相當不好用啊。
 {% endblockquote %}
@@ -109,7 +110,7 @@ bin dev home proc storage tmp var
 data etc lib share system usr
 ```
 
-#### chroot in script
+### chroot in script
 在安裝個人環境的 **Setup Script**，會需要進入到 **`termux-chroot`** 環境中的，不然會遇到路徑找不到的錯誤，像是用 **`repo init -u `** 的時候，就會有問題。
 
 但是直接寫在 **`termux-chroot`** 後面命令，是不會被執行到的，更正確地說，是離開了 **chroot** 環境才會繼續執行下去。
@@ -149,7 +150,7 @@ $PREFIX/bin/proot $ARGS
 因此只要照抄 **`termux-chroot`** 的前面部份，獲得到 **$ARGS** 變數，換成自己的，就可以寫在 **Script** 自動執行 **chroot** 後的命令了。
 
 
-#### mutiple stages
+### mutiple stages
 所以最後的 **Setup Script** 架構大概長成這樣子，分成兩階段執行，這樣就可以放下去跑，然後休息一下，等它們全部設定完就好了。
 
 ```sh
