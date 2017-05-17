@@ -87,7 +87,7 @@ apt install -y clang libgpg-error-dev && clang test.c -lgpg-error && ./a.out
 **`printf`** 可以說是 **debug** 的第一步啊XD
 {% endblockquote %}
 
-既然有 **`gdb`** 了，那來中斷在 **`do_deinit()`** 的進入點上，看看這時候 **/proc/PID/fs/** 有哪裡不一樣吧。
+既然有 **`gdb`** 了，那來中斷在 **`do_deinit()`** 的進入點上，看看這時候 **/proc/PID/fd/** 有哪裡不一樣吧。
 
 ```sh
 $ gdb ./issue933
@@ -109,6 +109,118 @@ lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 2 -> /dev/pts/1
 **stdin, stdout, stderr** 在這時候已經被清掉了啊啊啊啊XDDD
 {% endcq %}
 
+### Test Code: termux-so-atexit
+為了更加簡單釐清問題，寫了一個很基本的測試程式 **[termux-so-atexit]** 來驗證會造成 **stdout** 消失的原因。**[termux-so-atexit]** 會儘量把環境一步步逼近跟 **[Issue #933]** 一樣，這樣就可以知道是什麼部份差異所造成的。
+
+只要有裝好 **[Termux]** 可以很容易安裝以及跑這個測試程式。
+```sh
+$ apt install hub
+$ hub clone yumaokao/termux-so-atexit
+$ cd termux-so-atexit
+
+# On Not-working Devices
+$ make test_atexit-so-constructor
+Should see messages and aborted
+make: *** [Makefile:15: test_atexit-so-constructor] Aborted
+
+# On Working Devices
+$ make test_atexit-so-constructor
+Should see messages and aborted
+atexit called from shared library
+make: *** [Makefile:15: test_atexit-so-constructor] Aborted
+```
+
+### __attribute__ ((__constructor__))
+經過了 **[termux-so-atexit]** 的逼近，確定只要符合底下的條件，就會發生 **stdout** 消失的問題。
+  1. 使用 **`Android 7.0`** 以前的版本
+  1. **`atexit()`** 是在被宣告有 **`__attribute__ ((__constructor__))`** 的函數裡呼叫的
+
+**`libgpg-error`** 就是這樣，它會判斷編譯器是不是支援 **`__attribute__ ((__constructor__))`**
+
+```c
+/* gpg-error.h */
+
+#if _GPG_ERR_GCC_VERSION > 30100
+# define _GPG_ERR_CONSTRUCTOR	__attribute__ ((__constructor__))
+# define _GPG_ERR_HAVE_CONSTRUCTOR
+#else
+# define _GPG_ERR_CONSTRUCTOR
+#endif
+
+/* Initialize the library.  This function should be run early.  */
+gpg_error_t gpg_err_init (void) _GPG_ERR_CONSTRUCTOR;
+```
+
+而 **`gpg_err_init()`** 最後會叫到 **`_gpgrt_estream_init()`**，終於在這裡註冊了 **`atexit`**。
+```c
+/* estream.c */
+
+int
+_gpgrt_estream_init (void)
+{
+  static int initialized;
+
+  if (!initialized)
+    {
+      initialized = 1;
+      atexit (do_deinit);
+    }
+  return 0;
+}
+```
+
+### Workaround PR #1017
+知道是這個 **`__attribute__ ((__constructor__))`** 造成的，那要怎麼避開這個問題呢？
+
+首先先來看看要是平台不支援這種 **__constructor__** 的話， **`libgpg-error`** 會如何處理。
+```c
+/* gpg-error.h */
+
+/* If this is defined, the library is already initialized by the
+   constructor and does not need to be initialized explicitely.  */
+#undef GPG_ERR_INITIALIZED
+#ifdef _GPG_ERR_HAVE_CONSTRUCTOR
+# define GPG_ERR_INITIALIZED	1
+# define gpgrt_init() do { gpg_err_init (); } while (0)
+#else
+# define gpgrt_init() do { ; } while (0)
+#endif
+```
+{% cq %}
+個人認為這邊是寫錯的，**gpgrt_init()** 的定義應該反過來才對啊？！
+{% endcq %}
+
+好吧，**將錯就錯**！反正現在即使有 **`__attribute__ ((__constructor__))`** 也還是會再進去 **`_gpgrt_estream_init()`** 一次就是。
+
+{% cq %}
+那麼就改成可以再註冊一次 **`atexit(do_deinit)`** 就可以了！（神奇吧！哈哈！）
+{% endcq %}
+底下就是送出去給 **[termux-packages]** 的 **Pull Request** **[PR #1017]**
+```diff
+ {
+    static int initialized;
+
+ +#ifdef __ANDROID__
+ +  if (initialized < 2)
+ +#else
+    if (!initialized)
+ +#endif
+      {
+        initialized = 1;
+        atexit (do_deinit);
+```
+
+### Executed Order of atexit()
+為什麼這樣修正 **([PR #1017])** 就可以正常印出字串到 **stdout** 了呢？根據 **`atexit()`** 的 **manual** 所描述
+{% blockquote %}
+Functions so registered are called in the **`reverse order`** of their registration;
+{% endblockquote %}
+
+簡單地說就是個 **Stack** 或是 **First In Last Out** 的架構。
+
+所以進入 **main()** 後再被註冊的 **`do_deinit()`** 會先被執行到，而這時候 **stdout, stderr** 等的 **fd** 還在，就可以正常刷出還在 **buffer** 裡的字串到螢幕上了。
+
+**[PR #1017]** 很快就被 **merged** 了，即使還是個 **workaround**，但跟原本的比起來，至少在一處做比多個用到 **libgpg-error** 的地方改還乾淨一點。
 
 [之前]: /2017/05/termux-env-setup/tw/#About-Termux
 [Termux]: https://termux.com/
@@ -116,5 +228,16 @@ lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 2 -> /dev/pts/1
 [Docker]: https://www.docker.com/
 [@fornwall]: https://twitter.com/fornwall
 [Issue #933]: https://github.com/termux/termux-packages/issues/933
+[PR #1017]: https://github.com/termux/termux-packages/pull/1017
 [便宜手機]: http://www.mi.com/tw/redminote4x/
+[termux-so-atexit]: https://github.com/yumaokao/termux-so-atexit
+[commit bb46afd]: https://android.googlesource.com/platform/bionic/+/bb46afd%5E!/
 <!-- {% post_link termux-env-setup %} -->
+## Root Cause: bionic C
+{% cq %}
+有沒有發現，上面講了這麼多，其實真正的原因還沒找到耶！（驚）
+{% endcq %}
+
+好吧，所以來找找看關於 **`atexit()`** 這邊的 **flow** 是不是有相關的變動，不然怎麼會新的 **Android 7.x** 就沒問題了呢。
+
+個人認為在 **`bionic`** 的這個 **[commit bb46afd]** 是造成 **[Issue #933]** 最根本的原因。
