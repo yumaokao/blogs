@@ -55,12 +55,59 @@ apt install -y clang libgpg-error-dev && clang test.c -lgpg-error && ./a.out
 {% endblockquote %}
 
 {% cq %}
-所以才趕緊搶隻**便宜手機**，趕緊刷到 **Android 7.1**的嘛！（誤）
+所以才趕緊搶隻**便宜手機**，趕緊刷到 **Android 7.1** 的嘛！（誤）
 {% endcq %}
 
 測試結果看起來是 **Android** 版本的問題，而不是 **arch** 造成的。
   - **Working**: i686 (tested on **Android 7.1 emulator**)
   - **Not working**: aarch64 (tested on an **Android 6.0 device**)
+
+好的，釐清了會發生問題的條件後，就來研究一下 **`libgpg-error`** 如何處理 **`es_putc`**，簡單看過之後，大致上就是有個 **estream** 自行實現了 **buffered** 字串流功能，會等到 **buffer** 滿了之後再一塊刷出到 **fd**，像是 **stdout** 或是 **stderr**。
+
+那要是主程式程式要離開了，但 **buffer** 裡面還有東西該怎麼辦呢？這時候會需要有個收尾的 **function** 來把還沒刷出去的給印出來，不然就會覺得被吃掉了。
+
+{% blockquote %}
+這個收尾的 **function** 就叫作 **`do_deinit()`**，是透過 **libc** 的 **`atexit()`** 註冊的。
+{% endblockquote %}
+
+### abort()
+馬上就來在 **`do_deinit()`** 前面很趕緊加個 **`fprintf(stderr)`**，看看能不能印出東西來代表有沒有跑到。結果是不行的，沒有看到訊息被印出來，所以直覺地認為在有問題的手機上 **`do_deinit`** 是沒有被跑到的。
+
+那就來看看會跑到的手機，是怎麼進去這個收尾 **`do_deinit()`** 呢？加個 **`abort()`** 在剛剛的 **`fprintf(stderr)`** 之後吧，這樣就可以得到 **core dump** 了，有這個就可以 **`bt`**看是誰叫到了。
+
+**[Termux]** 很讚是，已經有 **`gdb`** 可以裝了，接著有疑問的地方是剛剛程式不是用 **`clang`** 編譯的嗎？這樣也可以用 **`gdb`** 嗎？其實是可以的啦。
+
+{% blockquote %}
+結果有問題的手機，也是會 **`abort`** 的，這表示都有跑到 **`do_deinit()`**
+{% endblockquote %}
+
+### stdin, stdout and stderr
+看起來是 **`do_deinit()`** 有被叫到，但是 **`fprintf`** 沒有辦法印出東西來，這太有趣了！什麼時候會遇到 **`printf`** 沒有辦法正常工作呢？
+{% blockquote %}
+**`printf`** 可以說是 **debug** 的第一步啊XD
+{% endblockquote %}
+
+既然有 **`gdb`** 了，那來中斷在 **`do_deinit()`** 的進入點上，看看這時候 **/proc/PID/fs/** 有哪裡不一樣吧。
+
+```sh
+$ gdb ./issue933
+(gdb) b do_deinit
+(gdb) r
+
+# On Not-working Devices
+$ ls -l /proc/3965/fd
+
+# On Working Devices
+$ ls -l /proc/28326/fd
+total 0
+lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 0 -> /dev/pts/1
+lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 1 -> /dev/pts/1
+lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 2 -> /dev/pts/1
+```
+
+{% cq %}
+**stdin, stdout, stderr** 在這時候已經被清掉了啊啊啊啊XDDD
+{% endcq %}
 
 
 [之前]: /2017/05/termux-env-setup/tw/#About-Termux
