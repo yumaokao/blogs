@@ -10,11 +10,11 @@ tags:
 - commandline
 ---
 
-## termux-pacakges
+# Intro to termux-pacakges
 **[之前]** 有提過 [Termux] 是個在 Android 底下的終端模擬器，而附上了 [Termux] 套件系統，可以用 **`apt`** 來管理安裝。
 [termux-packages] 就是 [Termux] 編譯出這些套件的地方，裡面利用 [Docker] 來建構交叉編譯的環境。個別套件遇到的問題，就都會在 [termux-packages] 發 issues 討論。
 
-## Issue #933
+# Issue #933 in termux-packages
 [Termux] 的作者 **[@fornwall]**，在2017/4/16發了一個 **[Issue #933]**，說在使用 **`libgpg-error`** 時遇到一些問題。
 
 **[Issue #933]** 裡面附上的 Sample Code
@@ -35,15 +35,15 @@ apt install -y clang libgpg-error-dev && clang test.c -lgpg-error && ./a.out
 
 <!-- more -->
 
-### patches
+## Patches needed for gnupg2
 因為這個問題，所以沒有辦法只好在用到 **`libgpg-error`** 的程式，其實就是 **`gnupg2`**，裡面加上了一些 **patches**。雖然可以暫時解掉，但還是希望能夠有正解的分析，才能安心地從 **`gnupg1`** 轉換到 **`gnupg2`**。
 
-### aarch64 and arm
+## Difference between aarch64 and arm ?
 會對這個 Issue 引起興趣是因為 **[@fornwall]** 猜測是 **arch** 的不同引起的差異。
 個人之前在 [Termux] 上遇到問題的時候，也是很容易就會猜測是 **arch** (e.g. x86_64) 不同造成的，有機會會另外寫一篇講這個，後來詳細追了下去，發覺其實都是 **Android** 本身系統問題，很難是 **arch** 造成的原因。
 
 
-## atexit
+# The Condition: Android Ver.
 很快地把 **Sample Code** 編譯起來在自己的幾台機器跑了一下，發覺其實都印不出 **`A`**，哈哈哈。
 {% blockquote %}
 因為那時候手上還沒有 **Andoird 7.x** 的手機啊XD
@@ -70,7 +70,7 @@ apt install -y clang libgpg-error-dev && clang test.c -lgpg-error && ./a.out
 這個收尾的 **function** 就叫作 **`do_deinit()`**，是透過 **libc** 的 **`atexit()`** 註冊的。
 {% endblockquote %}
 
-### abort()
+## Debug atexit with abort()
 馬上就來在 **`do_deinit()`** 前面很趕緊加個 **`fprintf(stderr)`**，看看能不能印出東西來代表有沒有跑到。結果是不行的，沒有看到訊息被印出來，所以直覺地認為在有問題的手機上 **`do_deinit`** 是沒有被跑到的。
 
 那就來看看會跑到的手機，是怎麼進去這個收尾 **`do_deinit()`** 呢？加個 **`abort()`** 在剛剛的 **`fprintf(stderr)`** 之後吧，這樣就可以得到 **core dump** 了，有這個就可以 **`bt`**看是誰叫到了。
@@ -81,7 +81,7 @@ apt install -y clang libgpg-error-dev && clang test.c -lgpg-error && ./a.out
 結果有問題的手機，也是會 **`abort`** 的，這表示都有跑到 **`do_deinit()`**
 {% endblockquote %}
 
-### stdin, stdout and stderr
+## No stdin, stdout and stderr
 看起來是 **`do_deinit()`** 有被叫到，但是 **`fprintf`** 沒有辦法印出東西來，這太有趣了！什麼時候會遇到 **`printf`** 沒有辦法正常工作呢？
 {% blockquote %}
 **`printf`** 可以說是 **debug** 的第一步啊XD
@@ -109,7 +109,7 @@ lrwx------ 1 u0_a101 u0_a101 64 May 17 11:32 2 -> /dev/pts/1
 **stdin, stdout, stderr** 在這時候已經被清掉了啊啊啊啊XDDD
 {% endcq %}
 
-### Test Code: termux-so-atexit
+## Test Code: termux-so-atexit
 為了更加簡單釐清問題，寫了一個很基本的測試程式 **[termux-so-atexit]** 來驗證會造成 **stdout** 消失的原因。**[termux-so-atexit]** 會儘量把環境一步步逼近跟 **[Issue #933]** 一樣，這樣就可以知道是什麼部份差異所造成的。
 
 只要有裝好 **[Termux]** 可以很容易安裝以及跑這個測試程式。
@@ -130,7 +130,7 @@ atexit called from shared library
 make: *** [Makefile:15: test_atexit-so-constructor] Aborted
 ```
 
-### __attribute__ ((__constructor__))
+## __attribute__ ((__constructor__))
 經過了 **[termux-so-atexit]** 的逼近，確定只要符合底下的條件，就會發生 **stdout** 消失的問題。
   1. 使用 **`Android 7.0`** 以前的版本
   1. **`atexit()`** 是在被宣告有 **`__attribute__ ((__constructor__))`** 的函數裡呼叫的
@@ -169,7 +169,7 @@ _gpgrt_estream_init (void)
 }
 ```
 
-### Workaround PR #1017
+## Workaround PR #1017
 知道是這個 **`__attribute__ ((__constructor__))`** 造成的，那要怎麼避開這個問題呢？
 
 首先先來看看要是平台不支援這種 **__constructor__** 的話， **`libgpg-error`** 會如何處理。
@@ -210,7 +210,7 @@ _gpgrt_estream_init (void)
         atexit (do_deinit);
 ```
 
-### Executed Order of atexit()
+## Executed Order of atexit()
 為什麼這樣修正 **([PR #1017])** 就可以正常印出字串到 **stdout** 了呢？根據 **`atexit()`** 的 **manual** 所描述
 {% blockquote %}
 Functions so registered are called in the **`reverse order`** of their registration;
@@ -222,6 +222,243 @@ Functions so registered are called in the **`reverse order`** of their registrat
 
 **[PR #1017]** 很快就被 **merged** 了，即使還是個 **workaround**，但跟原本的比起來，至少在一處做比多個用到 **libgpg-error** 的地方改還乾淨一點。
 
+
+# Root Cause: bionic
+{% cq %}
+有沒有發現，上面講了這麼多，其實真正的原因還沒找到耶！（驚）
+{% endcq %}
+
+## After exit()
+好吧，所以來找找看關於 **`atexit()`** 的部份是不是有相關的變動，不然怎麼會新的 **Android 7.x** 就沒問題了呢？那麼來找找看 **[Bionic]** 原始碼在程式離開之後是怎麼叫到被 **`atexit()`** 註冊的 **functions**。
+
+```c
+libc/stdlib/exit.c
+
+void
+exit(int status)
+{
+    ...
+    /*
+     * Call functions registered by atexit() or _cxa_atexit()
+     * (including the stdio cleanup routine) and then _exit().
+     */
+    __cxa_finalize(NULL);
+    _exit(status);
+}
+```
+```c
+libc/stdlib/atexit.c
+
+void
+__cxa_finalize(void *dso)
+{
+    ...
+    for (p = __atexit; p != NULL; p = p->next) {
+        for (n = p->ind; --n >= 0;) {
+            fn = p->fns[n];
+            (*fn.fn_ptr)(fn.fn_arg);
+        }
+    }
+    ...
+    extern void __libc_stdio_cleanup(void);
+    __libc_stdio_cleanup();
+}
+```
+
+喔！抓到了，看起來 **`__libc_stdio_cleanup()`** 就很像是關掉 **stdout** 的人啊！
+本來以為是這樣，但其實 **並不是喔！** 因為它只做 **`fflush()`** 而已啊啊啊！！
+
+```c
+libc/stdio/stdio.c
+
+extern "C" __LIBC_HIDDEN__ void __libc_stdio_cleanup(void) {
+  // Equivalent to fflush(nullptr), but without all the locking since we're shutting down anyway.
+  _fwalk(__sflush);
+}
+```
+## malloc_fini_impl, where stdout been closed
+好吧，只好再繼續找找看誰會 **`fclose(stdout)`**，然後又可能會在樓上的 **`__cxa_finalize()`** 裡被叫到。
+
+```c
+libc/bionic/malloc_common.cpp
+
+static void malloc_init_impl(libc_globals* globals) {
+  ...
+  info_log("%s: malloc debug enabled", getprogname());
+
+  int ret_value = __cxa_atexit(malloc_fini_impl, nullptr, nullptr);
+  if (ret_value != 0) {
+    error_log("failed to set atexit cleanup function: %d", ret_value);
+  }
+}
+
+static void malloc_fini_impl(void*) {
+  // Our BSD stdio implementation doesn't close the standard streams,
+  // it only flushes them. Other unclosed FILE*s will show up as
+  // malloc leaks, but to avoid the standard streams showing up in
+  // leak reports, close them here.
+  fclose(stdin);
+  fclose(stdout);
+  fclose(stderr);
+
+  g_debug_finalize_func();
+}
+```
+
+啊原來是 **BSD** 實作本來就不會關掉 **stdout**，是為了 **debug malloc leaks**，會檢查有還沒關掉的 **fd**，所以才用 **`malloc_fini_impl()`**，把它們關掉的。
+{% cq %}
+這實在太有趣了XD
+{% endcq%}
+
+## gdb test to look at functions registered with atexit()
+所以到底為什麼 **Android 7 Nougat** 就沒有問題， **Android 6 Marshmallow**就會 **GG** 咧？對啦，真的就是上面的 **`malloc_fini_impl()`** 有沒有被叫到的差異。
+
+可以利用 **`gdb`** 以及 **[termux-so-atexit]** 來檢查看看喔。稍微改一下，讓 **`so_atexit`** 可以被跑到兩次。
+
+```gdb
+# On Not-working Devices
+$ make gdb_atexit-so-constructor
+(gdb) b so_atexit
+(gdb) b malloc_fini_impl
+(gdb) r
+Breakpoint 1, so_atexit () at soatexit.c:5
+
+(gdb) c
+Breakpoint 2, 0x0000007fb7eb91d8 in malloc_fini_impl() () from /system/lib64/libc.so
+(gdb) info os files
+14608      atexit-so-const 0          /dev/pts/1
+14608      atexit-so-const 1          /dev/pts/1
+14608      atexit-so-const 2          /dev/pts/1
+
+(gdb) c
+Breakpoint 1, so_atexit () at soatexit.c:5
+(gdb) info os files
+```
+
+由以上的 **`gdb`** 結果可以知道：
+  1. **`malloc_fini_impl()`** 有被執行到，而且夾在兩次 **`so_atexit()`** 的中間
+  2. **第二次的** **`so_atexit()`** 就看不到 **stdout** 了
+
+
+{% blockquote %}
+相同的 **`gdb`** 測試步驟，在 **Android 7** 的手機上，是不會停在 **`malloc_fini_impl()`** 的
+{% endblockquote %}
+
+## Difference before main()
+最後來分別看一下 **Android 7** 與 **Android 6** 的 **[Bionic]** 原始碼，以驗證上面所有看到的現象是合理的。
+
+### Malloc debug is must on Android Marshmallow
+```c
+libc/bionic/libc_init_dynamic.cpp
+
+/*
+ * - a program launch function (__libc_init), which is called after
+ *   all dynamic linking has been performed. Technically, it is called
+ *   from arch-$ARCH/bionic/crtbegin_dynamic.S which is itself called
+ *   by the dynamic linker after all libraries have been loaded and
+ *   initialized.
+ */
+
+__noreturn void __libc_init(void* raw_args,
+  ...
+  if (structors->fini_array) {
+    __cxa_atexit(__libc_fini,structors->fini_array,NULL);
+  }
+}
+
+```
+```c
+libc/bionic/libc_init_common.cpp
+
+void __libc_fini(void* array) {
+    ...
+    extern void __libc_postfini(void) __attribute__((weak));
+    if (__libc_postfini) {
+      __libc_postfini();
+    }
+}
+
+libc/bionic/libc_init_dynamic.cpp
+
+__LIBC_HIDDEN__ void __libc_postfini() {
+  // A hook for the debug malloc library to let it know that we're shutting down.
+  malloc_debug_fini();
+}
+```
+```c
+libc/bionic/malloc_debug_common.cpp
+
+extern "C" __LIBC_HIDDEN__ void malloc_debug_fini() {
+  ...
+  static pthread_once_t malloc_fini_once_ctl = PTHREAD_ONCE_INIT;
+  if (pthread_once(&malloc_fini_once_ctl, malloc_fini_impl)) {
+    error_log("Unable to finalize malloc_debug component.");
+  }
+}
+
+```
+在 **Android 6** 時，是把 **`libc_fini()`** 註冊到 **`atexit`** 中，而當程式離開的時候，會從這裡一路呼叫到 **`malloc_debug_fini()`**。
+到這裡竟然會用 **`pthread_once()`** 叫一次 **`malloc_fini_impl()`**，也就是剛剛說的會把 **stdout** 等等關掉的 **function**。
+
+再稍微看一下 **`libc_fini()`** 的 **comments** ，就會發現到這一路的 **`atexit()`** 是發生在 **dynamic linking** 準備好之後了。
+把之前的例子 **[termux-so-atexit]** 註冊 **`atexit()`** 的時序圖畫一下，大概是這樣子：
+
+{% mermaid %}
+graph LR
+    subgraph atexit register order
+    soatexit0("so_atexit<br/>- __constructor__") --> __libc_fini("__libc_fini")
+    __libc_fini("__libc_fini<br/>- fclose(stdout)") -->|"main()"| soatexit1("so_atexit<br/>- after main()")
+    end
+{% endmermaid %}
+
+如果還記得最前面有說到， **`atexit()`** 有說執行的時候，是要按造註冊的順序反過來的，所以如上圖的順序，就會了解到原本一開始用 **`__constructor__`** 註冊的 **`so_atexit()`** 為什麼會看到 **stdout** 等等不見的情形了。
+
+
+
+### Malloc debug is optional on Android Nougat
+再看看看現在比較新一點的 **Android 7** 會呼叫到 **`malloc_fini_impl`** 的相關流程。
+
+```c
+libc/bionic/libc_init_dynamic.cpp
+
+__attribute__((constructor)) static void __libc_preinit() {
+  ...
+  __libc_init_globals(*args);
+  __libc_init_common(*args);
+
+  // Hooks for various libraries to let them know that we're starting up.
+  __libc_globals.mutate(__libc_init_malloc);
+  netdClientInit();
+}
+```
+```c
+libc/bionic/malloc_common.cpp
+
+__LIBC_HIDDEN__ void __libc_init_malloc(libc_globals* globals) {
+  malloc_init_impl(globals);
+}
+static void malloc_init_impl(libc_globals* globals) {
+  char value[PROP_VALUE_MAX];
+  if (__system_property_get(DEBUG_MALLOC_PROPERTY_OPTIONS, value) == 0 || value[0] == '\0') {
+    return;
+  }
+  ...
+  info_log("%s: malloc debug enabled", getprogname());
+
+  int ret_value = __cxa_atexit(malloc_fini_impl, nullptr, nullptr);
+}
+```
+
+看起來在 **Android 7** 這是個 **debug** 選項，必須要用 **setprop** 設定一些參數，才能讓 **`malloc_fini_impl`** 被註冊，不然預設是不會被叫到的，也因為這樣才沒有遇到 **[Issue #933]**
+{% cq %}
+完全就是個美麗的誤會，而不是 **Bionic** 發現到有這種問題而修正的XD
+{% endcq %}
+
+{% cq %}
+結論是不要在 **`atexit`** 的 **function** 中假設 **stdout** 還在啊啊啊！！
+{% endcq %}
+
+
 [之前]: /2017/05/termux-env-setup/tw/#About-Termux
 [Termux]: https://termux.com/
 [termux-packages]: https://github.com/termux/termux-packages
@@ -231,13 +468,5 @@ Functions so registered are called in the **`reverse order`** of their registrat
 [PR #1017]: https://github.com/termux/termux-packages/pull/1017
 [便宜手機]: http://www.mi.com/tw/redminote4x/
 [termux-so-atexit]: https://github.com/yumaokao/termux-so-atexit
-[commit bb46afd]: https://android.googlesource.com/platform/bionic/+/bb46afd%5E!/
+[Bionic]: https://android.googlesource.com/platform/bionic.git
 <!-- {% post_link termux-env-setup %} -->
-## Root Cause: bionic C
-{% cq %}
-有沒有發現，上面講了這麼多，其實真正的原因還沒找到耶！（驚）
-{% endcq %}
-
-好吧，所以來找找看關於 **`atexit()`** 這邊的 **flow** 是不是有相關的變動，不然怎麼會新的 **Android 7.x** 就沒問題了呢。
-
-個人認為在 **`bionic`** 的這個 **[commit bb46afd]** 是造成 **[Issue #933]** 最根本的原因。
